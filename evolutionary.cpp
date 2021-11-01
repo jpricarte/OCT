@@ -71,7 +71,7 @@ vector<vector<AdjInfo>> adjList; // used for PTAS crossover
 // seed used to generate random numbers
 unsigned seed;
 // seeds used for testing
-unsigned seedVector[] = {280192806, 871237442, 2540188929, 107472404, 3957311442, 316851227, 619606212, 1078082709, 916212990, 698598169};
+unsigned seedBase = 14031966;
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
 map<ii, Edge*> edgeMap;
@@ -1926,9 +1926,9 @@ int main(int argc, char* argv[])
                 prufferCodes[k] = lst;
             }
         }
-        for(int seedid = 0; seedid < 10; ++seedid)
+        for(int seedInc = 0; seedInc < 10; ++seedInc)
         {
-            seed = seedVector[seedid];
+            seed = seedBase+seedInc;
             printf("seed = %u\n", seed);
             //Initialize seeds
             srand(seed);

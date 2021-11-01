@@ -72,11 +72,15 @@ chrono::steady_clock::time_point a, b, c;
 // seed used to generate random numbers
 unsigned seed;
 // seeds used for testing
-unsigned seedVector[] = {280192806, 871237442, 2540188929, 107472404, 3957311442, 316851227, 619606212, 1078082709, 916212990, 698598169};
+unsigned seedBase = 14031966;
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
 map<ii, Edge*> edgeMap;
 map<int, list<vector<int>>> prufferCodes;
+
+unsigned numIterationsAnnealing = 0;
+unsigned numIterationsEvolutionary = 0;
+unsigned computedObjectiveValueCounter = 0;
 
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
@@ -125,6 +129,7 @@ struct Solution
 
     void computeObjectiveFun()
     {
+        computedObjectiveValueCounter++;
         int cur;
         for(int i = 0; i < n; ++i)
         {
@@ -379,6 +384,7 @@ struct Evolutionary
         Solution* tmpBest;
         while(gen <= numGen)
         {
+            numIterationsEvolutionary++;
             c = chrono::steady_clock::now();
             ellapsed = std::chrono::duration_cast<std::chrono::seconds>(c - a).count();
             if(ellapsed >= TIMEOUT/2.0)
@@ -479,6 +485,7 @@ struct Evolutionary
         {
             lastImprove++;
             iter++;
+            numIterationsAnnealing++;
             c = chrono::steady_clock::now();
             ellapsed = std::chrono::duration_cast<std::chrono::seconds>(c - a).count();
             if(ellapsed >= TIMEOUT)
@@ -687,9 +694,9 @@ int main(int argc, char* argv[])
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
-    for(int seedid = 0; seedid < 5; ++seedid)
+    for(int seedInc = 0; seedInc < 10; ++seedInc)
     {
-        seed = seedVector[seedid];
+        seed = seedBase+seedInc;
         printf("seed = %u\n", seed);
         //Initialize seeds
         srand(seed);
