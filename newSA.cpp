@@ -79,6 +79,10 @@ std::mt19937 rng;
 map<ii, Edge*> edgeMap;
 map<int, list<vector<int>>> prufferCodes;
 
+unsigned long numIterationsAnnealing = 0;
+unsigned long numIterationsEvolutionary = 0;
+unsigned long computedObjectiveValueCounter = 0;
+
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
 {
@@ -134,6 +138,8 @@ struct Solution
 
     void computeObjectiveFun()
     {
+        computedObjectiveValueCounter++;
+
         int cur;
         for(int i = 0; i < n; ++i)
         {
@@ -772,6 +778,7 @@ struct Evolutionary
         int notImproving = 0;
         while(gen <= numGen && notImproving < 25)
         {
+            numIterationsEvolutionary++;
             c = chrono::steady_clock::now();
             ellapsed = std::chrono::duration_cast<std::chrono::seconds>(c - a).count();
             if(ellapsed >= TIMEOUT/2.0)
@@ -856,6 +863,7 @@ struct Evolutionary
             int ellapsed;
             while(iter < 200000 && lastImprove < 10000)
             {
+                numIterationsAnnealing++;
                 lastImprove++;
                 iter++;
                 c = chrono::steady_clock::now();
@@ -1193,6 +1201,9 @@ int main(int argc, char* argv[])
         double tmp = best.objective;
         best.computeObjectiveFun();
         assert(eq(best.objective, tmp));
+        log << "Num of evolutionary iterations: " <<  numIterationsEvolutionary << endl;
+        log << "Num of simulated annealing iterations: " <<  numIterationsAnnealing << endl;
+        log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl;
     }
     log.close();
     return 0;

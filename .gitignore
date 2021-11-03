@@ -6,6 +6,7 @@ glsv2
 simpleEvo
 newSA
 math
+*.exe
 
 #settings.json
 .vscode/settings.json

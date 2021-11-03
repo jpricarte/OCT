@@ -77,6 +77,10 @@ std::mt19937 rng;
 map<ii, Edge*> edgeMap;
 map<int, list<vector<int>>> prufferCodes;
 
+unsigned long numIterations = 0;
+unsigned long calculateFitnessCounter = 0;
+unsigned long computedObjectiveValueCounter = 0;
+
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
 {
@@ -139,6 +143,7 @@ struct Solution
 
     void computeObjectiveFun()
     {
+        computedObjectiveValueCounter++;
         int cur;
         for(int i = 0; i < n; ++i)
         {
@@ -1168,6 +1173,7 @@ struct Evolutionary
         Solution* tmpBest;
         while(gen <= numGen && notImproving < 25)
         {
+            numIterations++;
             printf("Generation = %d\n", gen);
             minObj = DBL_MAX;
             maxObj = 0;
@@ -1185,6 +1191,7 @@ struct Evolutionary
             best = *tmpBest;
             // Evaluate fitness ([0, 1] interval, greater is better)
             fitSum = 0;
+            calculateFitnessCounter++;
             for(int i = 0; i < popSize; ++i)
             {
                 if(abs(minObj - maxObj) < EPS)
@@ -1941,6 +1948,9 @@ int main(int argc, char* argv[])
             end = chrono::steady_clock::now();
             cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
             log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
+            log << "Num of evolutionary iterations: " <<  numIterations << endl;
+            log << "Num of fitness computations: " << calculateFitnessCounter << endl;
+            log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
         }
     }
     log.close();

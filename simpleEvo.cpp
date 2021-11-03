@@ -78,9 +78,9 @@ std::mt19937 rng;
 map<ii, Edge*> edgeMap;
 map<int, list<vector<int>>> prufferCodes;
 
-unsigned numIterationsAnnealing = 0;
-unsigned numIterationsEvolutionary = 0;
-unsigned computedObjectiveValueCounter = 0;
+unsigned long numIterationsAnnealing = 0;
+unsigned long numIterationsEvolutionary = 0;
+unsigned long computedObjectiveValueCounter = 0;
 
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
@@ -711,6 +711,9 @@ int main(int argc, char* argv[])
         double tmp = best.objective;
         best.computeObjectiveFun();
         assert(eq(best.objective, tmp));
+        log << "Num of evolutionary iterations: " <<  numIterationsEvolutionary << endl;
+        log << "Num of simulated annealing iterations: " <<  numIterationsAnnealing << endl;
+        log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl;
     }
     log.close();
     return 0;
