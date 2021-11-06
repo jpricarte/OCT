@@ -8,6 +8,8 @@ using namespace std;
 #define vi vector<int>
 #define ii pair<int, int>
 #define EPS 1e-4
+#define NUM_SEEDS 3
+#define SEED_BASE 14031966
 
 int mode;
 
@@ -70,8 +72,6 @@ vector<vector<AdjInfo>> adjList; // used for PTAS crossover
 
 // seed used to generate random numbers
 unsigned seed;
-// seeds used for testing
-unsigned seedBase = 14031966;
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
 map<ii, Edge*> edgeMap;
@@ -80,6 +80,11 @@ map<int, list<vector<int>>> prufferCodes;
 unsigned long numIterations = 0;
 unsigned long calculateFitnessCounter = 0;
 unsigned long computedObjectiveValueCounter = 0;
+
+// Some general parameters
+int maxNotImproving = 25;
+float mainFitnessNotEqual = 1.2;
+float greedyFitnessNotEqual = 1.4;
 
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
@@ -211,6 +216,7 @@ struct Solution
     }
 
     // Mutate when inserting a new edge in the solution - O(n^2)
+    // TODO: uderstand why it's broking
     void mutateInserting()
     {
         this->fillDist();
@@ -224,6 +230,7 @@ struct Solution
                 possibleEdges[idx++] = i;
             }
         }
+        
         int rdInt = possibleEdges[rand()%((int) possibleEdges.size())];
         Edge edge = edges[rdInt];
         // Find cycle in graph with BFS (path from one endpoint to the other)
@@ -514,27 +521,27 @@ struct Solution
 // printing functions for debugging only purpose
 inline void print(Edge& e)
 {
-    printf("(%d, %d, %.2f, %d)\n", e.u, e.v, e.len, e.id);
+    // printf("(%d, %d, %.2f, %d)\n", e.u, e.v, e.len, e.id);
 }
 void print(vector<Edge>& edges)
 {
     int cnt = 0;
     for(Edge& e: edges)
     {
-        printf("%d: ", cnt++);
+        // printf("%d: ", cnt++);
         print(e);
     }
     putchar('\n');
 }
 void print(Solution& s)
 {
-    printf("Edges used:\n");
+    // printf("Edges used:\n");
     for(auto it = s.usedEdges.begin(); it != s.usedEdges.end(); ++it)
     {
         print(edges[*it]);
     }
     putchar('\n');
-    printf("Objective value = %.2f\n", s.objective);
+    // printf("Objective value = %.2f\n", s.objective);
     putchar('\n');
 }
 
@@ -1171,10 +1178,10 @@ struct Evolutionary
         int notImproving = 0;
         double curBestVal = DBL_MAX;
         Solution* tmpBest;
-        while(gen <= numGen && notImproving < 25)
+        while(gen <= numGen && notImproving < maxNotImproving)
         {
             numIterations++;
-            printf("Generation = %d\n", gen);
+            // printf("Generation = %d\n", gen);
             minObj = DBL_MAX;
             maxObj = 0;
             // find best solution
@@ -1197,7 +1204,7 @@ struct Evolutionary
                 if(abs(minObj - maxObj) < EPS)
                     fitness[i] = 1.0;
                 else
-                    fitness[i] = 1.0 - (solutions[i].objective - minObj)/(maxObj - minObj) + 0.2;
+                    fitness[i] = 1.0 - (solutions[i].objective - minObj)/(maxObj - minObj)+0.2;
                 fitSum += fitness[i];
                 assert(leq(fitness[i], 1.2));
             }
@@ -1276,7 +1283,7 @@ struct Evolutionary
                 notImproving++;
             }
             gen++;
-            printf("Best so far = %.10f\n", best.objective);
+            // printf("Best so far = %.10f\n", best.objective);
         }
         return best;
     }
@@ -1391,7 +1398,7 @@ struct Evolutionary
 	   and inserting the edges like Kruskal Algorithm */
     void genRandomPop()
     {
-        printf("RandomPop\n");
+        // printf("RandomPop\n");
         vector<Edge> cpy = edges;
         int numForests;
         for(int i = 0; i < popSize; ++i)
@@ -1425,7 +1432,7 @@ struct Evolutionary
        random vertices using Dijkstra */
     void genMinPathPop()
     {
-        printf("MinPathPop\n");
+        // printf("MinPathPop\n");
         // generate adjacency list to perform Dijkstra
         vector<AdjInfo> adj[n];
         for(Edge& e : edges)
@@ -1574,7 +1581,7 @@ struct Evolutionary
        of chosing the lowest cost edges (MST-like) */
     void genGreedyProbPop()
     {
-        printf("MST-like pop\n");
+        //printf("MST-like pop\n");
 
         for(int i = 0; i < popSize; ++i)
         {
@@ -1642,7 +1649,7 @@ struct Evolutionary
 
     void genPTASPop()
     {
-        printf("PTAS pop\n");
+        // printf("PTAS pop\n");
 
         adjList.assign(n, vector<AdjInfo>());
         for(Edge& e : edges)
@@ -1878,12 +1885,14 @@ struct Evolutionary
 
 int main(int argc, char* argv[])
 {
-    if(argc != 5)
+    Solution best;
+    if(argc != 4)
     {
-        printf("usage: ./evolutionary popSize numGen numCrossovers numMutations < inputFile\n");
+        printf("usage: ./evolutionary popSize numGen numCrossovers numMutations maxNotImproving mainFitnessValue greedyFitnessValue < inputFile\n");
         return -1;
     }
     cin >> n >> m;
+    cout << n << "\t" << m << endl;
     edges.resize(m);
     for(int i = 0; i < m; ++i)
     {
@@ -1908,22 +1917,22 @@ int main(int argc, char* argv[])
     {
         if(mode == 0)
         {
-            printf("Random Mode Selected\n");
+            // printf("Random Mode Selected\n");
             //log << "RANDOM\n";
         }
         else if(mode == 1)
         {
-            printf("MST Mode Selected\n");
+            // printf("MST Mode Selected\n");
             //log << "MST\n";
         }
         else if(mode == 2)
         {
-            printf("Minimum Path Mode Selected\n");
+            // printf("Minimum Path Mode Selected\n");
             //log << "Minimum Path\n";
         }
         else
         {
-            printf("PTAS Mode Selected\n");
+            // printf("PTAS Mode Selected\n");
             //log << "PTAS\n";
             for(int k = 3; k <= 5; k++)
             {
@@ -1933,26 +1942,30 @@ int main(int argc, char* argv[])
                 prufferCodes[k] = lst;
             }
         }
-        for(int seedInc = 0; seedInc < 10; ++seedInc)
+        
+        for(int seedInc = 0; seedInc < NUM_SEEDS; ++seedInc)
         {
-            seed = seedBase+seedInc;
-            printf("seed = %u\n", seed);
+            seed = SEED_BASE+seedInc;
+            // printf("seed = %u\n", seed);
             //Initialize seeds
             srand(seed);
             rng.seed(seed);
             Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
+            //maxNotImproving = atoi(argv[5]);
+            //mainFitnessNotEqual = atof(argv[6]);
+            //greedyFitnessNotEqual = atof(argv[7]);
             chrono::steady_clock::time_point begin, end;
             begin = chrono::steady_clock::now();
-            Solution best = ev.run();
-            printf("Best Value Found = %.10f\n", best.objective);
+            best = ev.run();
+            // printf("Best Value Found = %.10f\n", best.objective);
             end = chrono::steady_clock::now();
-            cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
+            //cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
             log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
-            log << "Num of evolutionary iterations: " <<  numIterations << endl;
-            log << "Num of fitness computations: " << calculateFitnessCounter << endl;
-            log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
         }
     }
+    log << "Num of evolutionary iterations: " <<  numIterations << endl;
+    log << "Num of fitness computations: " << calculateFitnessCounter << endl;
+    log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
     log.close();
-    return 0;
+    return best.objective;
 }

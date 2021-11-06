@@ -8,6 +8,8 @@ using namespace std;
 #define ii pair<int, int>
 #define EPS 1e-3
 #define TIMEOUT 300
+#define SEED_BASE 14031966
+#define ITERATIONS 2
 
 int mode;
 
@@ -72,8 +74,6 @@ chrono::steady_clock::time_point a, b, c;
 
 // seed used to generate random numbers
 unsigned seed;
-// seeds used for testing
-unsigned seedBase = 14031966;
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
 map<ii, Edge*> edgeMap;
@@ -536,7 +536,7 @@ void print(vector<Edge>& edges)
     for(Edge& e: edges)
     {
         printf("%d: ", cnt++);
-        print(e);
+        // print(e);
     }
     putchar('\n');
 }
@@ -1158,6 +1158,7 @@ struct Evolutionary
 
 int main(int argc, char* argv[])
 {
+    Solution best;
     if(argc != 4)
     {
         printf("usage: ./simpleEvo popSize numGen numCrossovers < inputFile\n");
@@ -1184,16 +1185,16 @@ int main(int argc, char* argv[])
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
-    for(int seedInc = 0; seedInc < 10; ++seedInc)
+    for(int seedInc = 0; seedInc < ITERATIONS; ++seedInc)
     {
-        seed = seedBase+seedInc;
+        seed = SEED_BASE+seedInc;
         printf("seed = %u\n", seed);
         //Initialize seeds
         srand(seed);
         rng.seed(seed);
         Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
-        Solution best = ev.run();
+        best = ev.run();
         printf("Best Value Found = %.10f\n", best.objective);
         b = chrono::steady_clock::now();
         cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
@@ -1201,10 +1202,11 @@ int main(int argc, char* argv[])
         double tmp = best.objective;
         best.computeObjectiveFun();
         assert(eq(best.objective, tmp));
-        log << "Num of evolutionary iterations: " <<  numIterationsEvolutionary << endl;
-        log << "Num of simulated annealing iterations: " <<  numIterationsAnnealing << endl;
-        log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl;
     }
+    log << "Num of evolutionary iterations: " <<  numIterationsEvolutionary << endl;
+    log << "Num of simulated annealing iterations: " <<  numIterationsAnnealing << endl;
+    log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl;
+    log << "=============================" << endl;
     log.close();
-    return 0;
+    return double(best.objective);
 }

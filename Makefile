@@ -5,7 +5,7 @@ INCLUDE=-I/$(DIR)/include/
 LIBRARY=-L/$(DIR)/lib/
 
 all: evolutionary.cpp
-	g++ $(FLAGS) evolutionary.cpp -o evolutionary $(INCLUDE) $(LIBRARY) -lgurobi_c++ -lgurobi91
+	g++ $(FLAGS) evolutionary.cpp -o evolutionary $(INCLUDE) $(LIBRARY)
 
 heuristic: MRCTheuristic.cpp
 	g++ $(FLAGS) MRCTheuristic.cpp -o heuristic

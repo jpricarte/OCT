@@ -13,3 +13,6 @@ math
 
 #log file
 log.txt
+
+#irace tests
+params_tests
