@@ -216,7 +216,6 @@ struct Solution
     }
 
     // Mutate when inserting a new edge in the solution - O(n^2)
-    // TODO: uderstand why it's broking
     void mutateInserting()
     {
         this->fillDist();
@@ -230,7 +229,6 @@ struct Solution
                 possibleEdges[idx++] = i;
             }
         }
-        
         int rdInt = possibleEdges[rand()%((int) possibleEdges.size())];
         Edge edge = edges[rdInt];
         // Find cycle in graph with BFS (path from one endpoint to the other)
@@ -1886,13 +1884,12 @@ struct Evolutionary
 int main(int argc, char* argv[])
 {
     Solution best;
-    if(argc != 4)
+    if(argc != 8)
     {
         printf("usage: ./evolutionary popSize numGen numCrossovers numMutations maxNotImproving mainFitnessValue greedyFitnessValue < inputFile\n");
         return -1;
     }
     cin >> n >> m;
-    cout << n << "\t" << m << endl;
     edges.resize(m);
     for(int i = 0; i < m; ++i)
     {
@@ -1951,9 +1948,9 @@ int main(int argc, char* argv[])
             srand(seed);
             rng.seed(seed);
             Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), atoi(argv[4]));
-            //maxNotImproving = atoi(argv[5]);
-            //mainFitnessNotEqual = atof(argv[6]);
-            //greedyFitnessNotEqual = atof(argv[7]);
+            maxNotImproving = atoi(argv[5]);
+            mainFitnessNotEqual = atof(argv[6]);
+            greedyFitnessNotEqual = atof(argv[7]);
             chrono::steady_clock::time_point begin, end;
             begin = chrono::steady_clock::now();
             best = ev.run();
@@ -1966,6 +1963,7 @@ int main(int argc, char* argv[])
     log << "Num of evolutionary iterations: " <<  numIterations << endl;
     log << "Num of fitness computations: " << calculateFitnessCounter << endl;
     log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
+    log << "=======================================" << endl;
     log.close();
     return best.objective;
 }
