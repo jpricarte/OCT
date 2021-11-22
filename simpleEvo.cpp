@@ -700,7 +700,8 @@ int main(int argc, char* argv[])
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
-    for(int seedInc = 0; seedInc < 3; ++seedInc)
+    Solution best;
+    for(int seedInc = 0; seedInc < 1; ++seedInc)
     {
         numIterationsAnnealing = 0;
         numIterationsEvolutionary = 0;
@@ -711,7 +712,7 @@ int main(int argc, char* argv[])
         
         Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
-        Solution best = ev.run();
+        best = ev.run();
         printf("Best Value Found = %.10f\n", best.objective);
         b = chrono::steady_clock::now();
         cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
@@ -724,5 +725,5 @@ int main(int argc, char* argv[])
         log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl;
     }
     log.close();
-    return 0;
+    return best.objective;
 }
