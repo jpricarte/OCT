@@ -82,9 +82,9 @@ unsigned long calculateFitnessCounter = 0;
 unsigned long computedObjectiveValueCounter = 0;
 
 // Some general parameters
-int maxNotImproving = 25;
-float mainFitnessNotEqual = 1.2;
-float greedyFitnessNotEqual = 1.4;
+int maxNotImproving = 0;
+float mainFitnessNotEqual = 0;
+float greedyFitnessNotEqual = 0;
 
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
@@ -1912,6 +1912,9 @@ int main(int argc, char* argv[])
     log << fixed << setprecision(10);
     for(mode = 0; mode <= 3; mode++)
     {
+        numIterations = 0;
+        calculateFitnessCounter = 0;
+        computedObjectiveValueCounter = 0;
         if(mode == 0)
         {
             // printf("Random Mode Selected\n");
@@ -1959,11 +1962,11 @@ int main(int argc, char* argv[])
             //cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
             log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
         }
+        log << "Num of evolutionary iterations: " <<  numIterations << endl;
+        log << "Num of fitness computations: " << calculateFitnessCounter << endl;
+        log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
+        log << "=======================================" << endl;
     }
-    log << "Num of evolutionary iterations: " <<  numIterations << endl;
-    log << "Num of fitness computations: " << calculateFitnessCounter << endl;
-    log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
-    log << "=======================================" << endl;
     log.close();
     return best.objective;
 }

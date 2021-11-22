@@ -669,13 +669,19 @@ struct Evolutionary
 
 int main(int argc, char* argv[])
 {
-    if(argc != 4)
+    if(argc != 5)
     {
-        printf("usage: ./simpleEvo popSize numGen numCrossovers < inputFile\n");
+        printf("usage: ./simpleEvo popSize numGen numCrossovers seed < inputFile\n");
         return -1;
     }
     cin >> n >> m;
     edges.resize(m);
+
+    //Initialize seeds
+    //TODO: USE FIXED SEED
+    srand(atoi(argv[5]));
+    rng.seed(atoi(argv[5]));
+
     for(int i = 0; i < m; ++i)
     {
         cin >> edges[i].u >> edges[i].v >> edges[i].len;
@@ -694,13 +700,15 @@ int main(int argc, char* argv[])
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
-    for(int seedInc = 0; seedInc < 10; ++seedInc)
+    for(int seedInc = 0; seedInc < 3; ++seedInc)
     {
+        numIterationsAnnealing = 0;
+        numIterationsEvolutionary = 0;
+        computedObjectiveValueCounter = 0;
+        
         seed = seedBase+seedInc;
         printf("seed = %u\n", seed);
-        //Initialize seeds
-        srand(seed);
-        rng.seed(seed);
+        
         Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
         Solution best = ev.run();
