@@ -25,10 +25,10 @@
 ##    other parameters. This expression must return TRUE if the 
 ##    condition is satisfied, FALSE otherwise.
 
-# 1:                2:      3: 4:      5:
+# 1:                2:      3: 4:        5:
 popSize             ""      i  (10, 200)
-numGen              ""      i  (10, 200)
-numCrossovers       ""      i  (10, 250)
+numGen              ""      i  (10, 300) 
+numCrossovers       ""      i  (10, 250) | numCrossovers%%2 == 0
 # numMutations        ""      i  (10, 200)
 # maxNotImproving     ""      i   (5, 100)
 # mainFitnessValue    ""      r  (1.0, 2.5)
