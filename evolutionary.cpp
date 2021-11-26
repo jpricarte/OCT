@@ -1942,7 +1942,9 @@ int main(int argc, char* argv[])
                 prufferCodes[k] = lst;
             }
         }
-        
+
+        // For irace
+        double minValue = DBL_MAX;        
         for(int seedInc = 0; seedInc < NUM_SEEDS; ++seedInc)
         {
             seed = SEED_BASE+seedInc;
@@ -1966,7 +1968,10 @@ int main(int argc, char* argv[])
         log << "Num of fitness computations: " << calculateFitnessCounter << endl;
         log << "Num of objective computations: " << computedObjectiveValueCounter << endl;
         log << "=======================================" << endl;
+        if (minValue > best.objective)
+            minValue = best.objective;
     }
     log.close();
-    return best.objective;
+    cout << minValue << endl;
+    return 0;
 }
