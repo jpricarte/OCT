@@ -1910,6 +1910,8 @@ int main(int argc, char* argv[])
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
+    // For Irace
+    double minValue = DBL_MAX;
     for(mode = 0; mode <= 3; mode++)
     {
         numIterations = 0;
@@ -1941,10 +1943,7 @@ int main(int argc, char* argv[])
                 createPruffer(tmp, lst, 0, k);
                 prufferCodes[k] = lst;
             }
-        }
-
-        // For irace
-        double minValue = DBL_MAX;        
+        }     
         for(int seedInc = 0; seedInc < NUM_SEEDS; ++seedInc)
         {
             seed = SEED_BASE+seedInc;
