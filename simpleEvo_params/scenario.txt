@@ -39,7 +39,7 @@ trainInstancesDir = "../instances/tests/"
 ## File that contains a list of logical expressions that cannot be TRUE
 ## for any evaluated configuration. If empty or NULL, do not use forbidden
 ## expressions.
-# forbiddenFile = ""
+ forbiddenFile = "forbidden.txt"
 
 ## Script called for each configuration that executes the target algorithm
 ## to be tuned. See templates.
@@ -126,6 +126,7 @@ maxExperiments = 200
 ## Seed of the random number generator (by default, generate a random
 ## seed).
 # seed = 0
+
 ## Number of calls to targetRunner to execute in parallel. Values 0 or 1
 ## mean no parallelization.
 # parallel = 0

@@ -13,3 +13,4 @@ math
 
 #log file
 log.txt
+*.Rdata
