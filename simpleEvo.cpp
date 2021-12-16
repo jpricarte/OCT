@@ -70,17 +70,12 @@ vector<vector<double>> req; // requirement values
 chrono::steady_clock::time_point a, b, c;
 
 // seed used to generate random numbers
-unsigned seed;
+unsigned seed = 0xc0ffee;
 // seeds used for testing
-unsigned seedBase = 14031966;
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
 map<ii, Edge*> edgeMap;
 map<int, list<vector<int>>> prufferCodes;
-
-unsigned long numIterationsAnnealing = 0;
-unsigned long numIterationsEvolutionary = 0;
-unsigned long computedObjectiveValueCounter = 0;
 
 // Return the neighbor of node u for a given edge
 inline int getNeighbor(int u, Edge& e)
@@ -129,7 +124,6 @@ struct Solution
 
     void computeObjectiveFun()
     {
-        computedObjectiveValueCounter++;
         int cur;
         for(int i = 0; i < n; ++i)
         {
@@ -324,28 +318,28 @@ struct Solution
 // printing functions for debugging only purpose
 inline void print(Edge& e)
 {
-    // printf("(%d, %d, %.2f, %d)\n", e.u, e.v, e.len, e.id);
+    printf("(%d, %d, %.2f, %d)\n", e.u, e.v, e.len, e.id);
 }
 void print(vector<Edge>& edges)
 {
     int cnt = 0;
     for(Edge& e: edges)
     {
-        // printf("%d: ", cnt++);
+        printf("%d: ", cnt++);
         print(e);
     }
     putchar('\n');
 }
 void print(Solution& s)
 {
-    // printf("Edges used:\n");
+    printf("Edges used:\n");
     for(int i = 0; i < m; ++i)
     {
         if(s.usedEdge[i])
             print(edges[i]);
     }
     putchar('\n');
-    // printf("Objective value = %.2f\n", s.objective);
+    printf("Objective value = %.2f\n", s.objective);
     putchar('\n');
 }
 
@@ -384,7 +378,6 @@ struct Evolutionary
         Solution* tmpBest;
         while(gen <= numGen)
         {
-            numIterationsEvolutionary++;
             c = chrono::steady_clock::now();
             ellapsed = std::chrono::duration_cast<std::chrono::seconds>(c - a).count();
             if(ellapsed >= TIMEOUT/2.0)
@@ -409,7 +402,7 @@ struct Evolutionary
             }
             if(nEdgesUsed == n-1)
                 break;
-            //printf("Generation = %d\n", gen);
+            printf("Generation = %d\n", gen);
             minObj = DBL_MAX;
             maxObj = 0;
             // find best solution
@@ -431,7 +424,7 @@ struct Evolutionary
                 id1 = rand()%(popSize);
                 id2 = rand()%(popSize);
                 offspring[i] = crossover(solutions[id1], solutions[id2]);
-                }
+            }
             int idx = numCrossover;
             for(int i = 0; i < popSize; ++i)
             {
@@ -443,8 +436,9 @@ struct Evolutionary
                 curBestVal = best.objective;
             }
             gen++;
-            // printf("Best so far = %.10f\n", best.objective);
+            printf("Best so far = %.10f\n", best.objective);
         }
+
         SimulatedAnnealing(best);
         return best;
     }
@@ -485,7 +479,6 @@ struct Evolutionary
         {
             lastImprove++;
             iter++;
-            numIterationsAnnealing++;
             c = chrono::steady_clock::now();
             ellapsed = std::chrono::duration_cast<std::chrono::seconds>(c - a).count();
             if(ellapsed >= TIMEOUT)
@@ -506,7 +499,7 @@ struct Evolutionary
             {
                 lastImprove = 0;
                 best = tmp;
-                // printf("Obj = %.10f\n", best.objective);
+                printf("Obj = %.10f\n", best.objective);
             }
             if(lt(tmp.objective, curIt.objective))
             {
@@ -569,11 +562,12 @@ struct Evolutionary
 
     void tournamentSelection(vector<Solution>& offspring)
     {
-        int a, b, i=0;
+        int a, b;
         vector<int> nTimes(offspringSize, 0);
         set<int> s;
         for(int i = 0; i < offspringSize; ++i)
             s.insert(i);
+
         int idx = 0;
         while(s.size())
         {
@@ -582,23 +576,26 @@ struct Evolutionary
             nTimes[*it1]++;
             a = *it1;
             s.erase(it1);
-            auto it2 = s.begin();
-            advance(it2, rand()%(s.size()));
-            nTimes[*it2]++;
-            b = *it2;
-            s.erase(it2);
-            if(lt(offspring[b].objective, offspring[a].objective))
-                a = b;
+            if (!s.empty())
+            {
+                auto it2 = s.begin();
+                advance(it2, rand()%(s.size()));
+                nTimes[*it2]++;
+                b = *it2;
+                s.erase(it2);            
+                if(lt(offspring[b].objective, offspring[a].objective))
+                    a = b;
+            }
             solutions[idx++] = offspring[a];
-            i++;
         }
+
     }
 
     /* Generate popSize initial solutions (trees) by shuffling the edges
 	   and inserting the edges like Kruskal Algorithm */
     void genRandomPop()
     {
-        // printf("RandomPop\n");
+        printf("RandomPop\n");
         vector<Edge> cpy = edges;
         int numForests;
         for(int i = 0; i < popSize; ++i)
@@ -672,17 +669,11 @@ int main(int argc, char* argv[])
 {
     if(argc != 5)
     {
-        printf("usage: ./simpleEvo popSize numGen numCrossovers seed < inputFile\n");
+        printf("usage: ./simpleEvo popSize numGen numCrossovers outputFile < inputFile\n");
         return -1;
     }
     cin >> n >> m;
     edges.resize(m);
-
-    //Initialize seeds
-    //TODO: USE FIXED SEED
-    srand(13);
-    rng.seed(13);
-
     for(int i = 0; i < m; ++i)
     {
         cin >> edges[i].u >> edges[i].v >> edges[i].len;
@@ -699,37 +690,26 @@ int main(int argc, char* argv[])
             req[j][i] = req[i][j];
         }
     }
-    ofstream log("log.txt", ios::app);
+    ofstream log(argv[4], ios::app);
     log << fixed << setprecision(10);
-    Solution best;
-    // For irace
-    double minValue = DBL_MAX;    
-    for(int seedInc = 0; seedInc < 3; ++seedInc)
+    for (int i=0; i<30; i++)
     {
-        numIterationsAnnealing = 0;
-        numIterationsEvolutionary = 0;
-        computedObjectiveValueCounter = 0;
-        
-        seed = seedBase+seedInc;
-        // printf("seed = %u\n", seed);
-        Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));        
+        seed = seed + i;
+        printf("seed = %u\n", seed);
+        //Initialize seeds
+        srand(seed);
+        rng.seed(seed);
+        Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
-        best = ev.run();
-        // printf("Best Value Found = %.10f\n", best.objective);
+        Solution best = ev.run();
+        printf("Best Value Found = %.10f\n", best.objective);
         b = chrono::steady_clock::now();
-        // cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
+        cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
         log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
         double tmp = best.objective;
         best.computeObjectiveFun();
         assert(eq(best.objective, tmp));
-        log << "Num of evolutionary iterations: " <<  numIterationsEvolutionary << endl;
-        log << "Num of simulated annealing iterations: " <<  numIterationsAnnealing << endl;
-        log << "Num of objective computations: " <<  computedObjectiveValueCounter << endl << endl;
-        if (minValue > best.objective)
-            minValue = best.objective;
     }
-    log << "---------" << endl;
     log.close();
-    cout << minValue << endl;
     return 0;
 }
