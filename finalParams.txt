@@ -1,0 +1,3 @@
+simpleEvo params:
+popSize numGen numCrossovers
+    185     95            20
