@@ -447,7 +447,7 @@ struct Solution
                 if(lt(tmp.objective, best.objective))
                 {
                     best = tmp;
-                    // printf("Objective = %.10f\n", best.objective);
+                    printf("Objective = %.10f\n", best.objective);
                     notImproving = 0;
                 }
                 if(tmp.h < minObj)
@@ -601,7 +601,7 @@ void localSearch(Solution& best)
 {
     Solution bestIt, imp, tmp;
     int ellapsed;
-    // printf("Objective = %.10f\n", best.objective);
+    printf("Objective = %.10f\n", best.objective);
     bestIt = best;
     int notImproving;
     notImproving = 0;
@@ -628,7 +628,7 @@ void localSearch(Solution& best)
         }
         bestIt = imp;
     } while(notImproving < 25);
-    // printf("done\n");
+    printf("done\n");
 }
 
 
@@ -641,7 +641,7 @@ Solution GLS(Solution& start)
     newSol = start;
     best = start;
     int ellapsed;
-    // printf("Objective = %.10f\n", best.objective);
+    printf("Objective = %.10f\n", best.objective);
     bestIt = best;
     int notImproving;
     notImproving = 0;
@@ -777,7 +777,7 @@ struct Evolutionary
             {
                 break;
             }
-            // printf("Generation = %d\n", gen);
+            printf("Generation = %d\n", gen);
             minObj = DBL_MAX;
             maxObj = 0;
             // find best solution
@@ -816,7 +816,7 @@ struct Evolutionary
                 notImproving++;
             }
             gen++;
-            // printf("Best so far = %.10f\n", best.objective);
+            printf("Best so far = %.10f\n", best.objective);
         }
         SimulatedAnnealing(best);
         return best;
@@ -870,7 +870,7 @@ struct Evolutionary
                     lastImprove = 0;
                     notImproving = 0;
                     best = tmp;
-                    // printf("Obj = %.10f\n", best.objective);
+                    printf("Obj = %.10f\n", best.objective);
                 }
                 if(lt(tmp.objective, curIt.objective))
                 {
@@ -973,7 +973,7 @@ struct Evolutionary
        random vertices using Dijkstra */
     void genMinPathPop()
     {
-        // printf("MinPathPop\n");
+        printf("MinPathPop\n");
         // generate adjacency list to perform Dijkstra
         vector<AdjInfo> adj[n];
         for(Edge& e : edges)
@@ -1155,7 +1155,7 @@ int main(int argc, char* argv[])
 {
     if(argc != 5)
     {
-        printf("usage: ./simpleEvo popSize numGen numCrossovers seed < inputFile\n");
+        printf("usage: ./simpleEvo popSize numGen numCrossovers outputFile < inputFile\n");
         return -1;
     }
     cin >> n >> m;
@@ -1177,22 +1177,22 @@ int main(int argc, char* argv[])
             req[j][i] = req[i][j];
         }
     }
-    ofstream log("log.txt", ios::app);
+    ofstream log(argv[4], ios::app);
     log << fixed << setprecision(10);
     double bestOfAll = DBL_MAX;
-    for(int i = 0; i < 2; ++i)
+    for(int i = 0; i < 30; ++i)
     {
-        seed = atoi(argv[4])+i;
-        // printf("seed = %u\n", seed);
+        int newSeed = seed+i;
+        printf("seed = %u\n", newSeed);
         //Initialize seeds
-        srand(seed);
-        rng.seed(seed);
+        srand(newSeed);
+        rng.seed(newSeed);
         Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
         Solution best = ev.run();
-        // printf("Best Value Found = %.10f\n", best.objective);
+        printf("Best Value Found = %.10f\n", best.objective);
         b = chrono::steady_clock::now();
-        // cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
+        cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
         log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(b - a).count() << endl;
         double tmp = best.objective;
         best.computeObjectiveFun();
@@ -1201,7 +1201,5 @@ int main(int argc, char* argv[])
             bestOfAll = best.objective;
     }
     log.close();
-    cout << fixed << setprecision(4);
-    cout << bestOfAll << endl;
     return 0;
 }

@@ -694,11 +694,11 @@ int main(int argc, char* argv[])
     log << fixed << setprecision(10);
     for (int i=0; i<30; i++)
     {
-        seed = seed + i;
+        int newSeed = seed + i;
         printf("seed = %u\n", seed);
         //Initialize seeds
-        srand(seed);
-        rng.seed(seed);
+        srand(newSeed);
+        rng.seed(newSeed);
         Evolutionary ev(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
         a = chrono::steady_clock::now();
         Solution best = ev.run();
