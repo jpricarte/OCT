@@ -1875,7 +1875,7 @@ int main(int argc, char* argv[])
 {
     if(argc != 9)
     {
-        printf("usage: ./evolutionary popSize numGen numCrossovers numMutations maxNotImproving mainFitnessValue greedyFitnessValue seed < inputFile\n");
+        printf("usage: ./evolutionary popSize numGen numCrossovers numMutations maxNotImproving mainFitnessValue greedyFitnessValue outputFile < inputFile\n");
         return -1;
     }
     cin >> n >> m;
@@ -1897,7 +1897,7 @@ int main(int argc, char* argv[])
             req[j][i] = req[i][j];
         }
     }
-    ofstream log("log.txt", ios::app);
+    ofstream log(argv[8], ios::app);
     log << fixed << setprecision(10);
     double bestOfAll = DBL_MAX;
     for(mode = 0; mode <= 3; mode++)
