@@ -21,7 +21,7 @@ error() {
     exit 1
 }
 
-EXE=./simpleEvo
+EXE=./greedy
 FIXED_PARAMS=""
 
 CONFIG_ID=$1
