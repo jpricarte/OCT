@@ -1168,8 +1168,12 @@ struct Evolutionary
         int notImproving = 0;
         double curBestVal = DBL_MAX;
         Solution* tmpBest;
-        while(gen <= numGen && notImproving < maxNotImproving)
+        chrono::steady_clock::time_point begin = chrono::steady_clock::now();
+        chrono::steady_clock::time_point current = chrono::steady_clock::now();
+        int64_t duration = std::chrono::duration_cast<std::chrono::seconds>(current - begin).count(); 
+        while(gen <= numGen && notImproving < maxNotImproving && duration < 600)
         {
+            cout << "elapsed until now: " << duration << endl;
             //printf("Generation = %d\n", gen);
             minObj = DBL_MAX;
             maxObj = 0;
@@ -1272,6 +1276,8 @@ struct Evolutionary
             }
             gen++;
             //printf("Best so far = %.10f\n", best.objective);
+            current = chrono::steady_clock::now();
+            duration = std::chrono::duration_cast<std::chrono::seconds>(current - begin).count();
         }
         return best;
     }
@@ -1947,9 +1953,9 @@ int main(int argc, char* argv[])
             chrono::steady_clock::time_point begin, end;
             begin = chrono::steady_clock::now();
             Solution best = ev.run();
-            //printf("Best Value Found = %.10f\n", best.objective);
+            printf("Best Value Found = %.10f\n", best.objective);
             end = chrono::steady_clock::now();
-            //cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
+            cout << "Time elapsed = " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
             log << best.objective << "," <<  std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << endl;
         }
     log.close();
