@@ -7,7 +7,7 @@ using namespace std;
 #define vi vector<int>
 #define ii pair<int, int>
 #define EPS 1e-3
-#define TIMEOUT 300
+#define TIMEOUT 600
 
 struct Edge 
 {
@@ -67,9 +67,8 @@ vector<vector<double>> req; // requirement values
 vector<vector<AdjInfo>> adjList;
 
 // seed used to generate random numbers
-unsigned seed;
-// seeds used for testing
-unsigned seedVector[] = {280192806, 871237442, 2540188929, 107472404, 3957311442, 316851227, 619606212, 1078082709, 916212990, 698598169};
+unsigned seed = 0xc0ffee;
+unsigned curSeed = seed;
 
 //Mersenne Twister: Good quality random number generator
 std::mt19937 rng;
@@ -254,7 +253,7 @@ struct Solution
                     possibleEdges.push_back(i);
                 }            
             }
-            shuffle(possibleEdges.begin(), possibleEdges.end(), default_random_engine(seed));
+            shuffle(possibleEdges.begin(), possibleEdges.end(), default_random_engine(curSeed));
             int cnt = 0;
             for(int& i : possibleEdges)
             {
@@ -349,7 +348,7 @@ void genRandomSol(Solution& sol)
 {
     vector<Edge> cpy = edges;
     int numForests;
-    shuffle(begin(cpy), end(cpy), default_random_engine(seed));
+    shuffle(begin(cpy), end(cpy), default_random_engine(curSeed));
     UnionFind uf(n);
     numForests = n;
     for(Edge& e: cpy)
@@ -494,13 +493,13 @@ int main()
     }
     ofstream log("log.txt", ios::app);
     log << fixed << setprecision(10);
-    for(int seedid = 0; seedid < 10; ++seedid)
+    for(int seedInc = 0; seedInc < 30; ++seedInc)
     {
-        seed = seedVector[seedid];
-        printf("seed = %u\n", seed);
+        curSeed = seed+seedInc;
+        printf("seed = %u\n", curSeed);
         //Initialize seeds
-        srand(seed);
-        rng.seed(seed);
+        srand(curSeed);
+        rng.seed(curSeed);
         a = chrono::steady_clock::now();
         Solution best = GLS();
         printf("Best Value Found = %.10f\n", best.objective);
