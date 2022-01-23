@@ -470,8 +470,13 @@ Solution GLS()
 }
 
 
-int main()
+int main(int argc,  char* argv[])
 {
+    if (argc != 2)
+    {
+        cout << "usage: ./gls outputFile < inputFile" << endl;   
+        return -1;    
+    }
     cin >> n >> m;
     edges.resize(m);
     for(int i = 0; i < m; ++i)
@@ -491,7 +496,7 @@ int main()
             req[j][i] = req[i][j];
         }
     }
-    ofstream log("log.txt", ios::app);
+    ofstream log(argv[1], ios::app);
     log << fixed << setprecision(10);
     for(int seedInc = 0; seedInc < 30; ++seedInc)
     {
