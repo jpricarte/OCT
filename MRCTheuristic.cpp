@@ -617,10 +617,9 @@ int main(int argc, char* argv[])
 {
     if(argc != 2)
     {
-        printf("usage: ./heuristic mode < inputFile\n");
+        printf("usage: ./heuristic outputFile < inputFile\n");
         return -1;
     }
-    mode = atoi(argv[1]);
     cin >> n >> m;
     edges.resize(m);
     adjList.resize(n, vector<AdjInfo>());
@@ -641,7 +640,7 @@ int main(int argc, char* argv[])
         }
     }
     seen.resize(n);
-    ofstream log("log.txt", ios::app);
+    ofstream log(argv[1], ios::app);
     log << fixed << setprecision(10);
     cout << fixed << setprecision(10);
     Phase1();
