@@ -400,7 +400,7 @@ void Phase2(Solution& sol)
 
 chrono::steady_clock::time_point a, b, tma;
 
-#define TIME_OUT 1200
+#define TIME_OUT 600
 
 void Phase3(Solution& sol)
 {
